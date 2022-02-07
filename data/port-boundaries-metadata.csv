@@ -1,0 +1,26 @@
+Field,Value
+Title,Port Boundaries
+URL,port-boundaries
+Description,The PORT_BND feature class is a polygon feature class representing port boundaries in California. The PORT_BND feature class was created by transferring the linework from port maps submitted by various ports onto the Caltrans County Maps and then digitized.
+Tags,"Boundary,CAOpenData,California Department of Transportation,California State Transportation Agency,Caltrans,Coronavirus,Covid,Covid-19,Covid19,Ports"
+License,cc-by
+Topic,transportation
+Organization,Caltrans
+Public Access Level,Public
+Rights,No restrictions on public use
+Program Contact Name,Division of Transportation Planning
+Program Contact Email,caltrans.gislib@dot.ca.gov
+Author,Division of Transportation Planning
+Homepage URL,
+Frequency,Irregular
+Temporal Coverage,
+Granularity,
+Geographic Coverage Location,State
+Spatial,
+Data Standard,
+Language,en_US
+Source Link,https://gisdata.dot.ca.gov/arcgis/rest/services/Rail/Port_Boundary/MapServer/0
+Additional Information,
+Related Resources,
+Secondary Sources,
+Citation,

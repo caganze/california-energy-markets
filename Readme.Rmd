@@ -1,0 +1,261 @@
+---
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+```
+
+# Exploring Trade Between Africa and other parts of the World
+
+The goal of this repository is to use publicly available databases such as the World Bank's WITS Trade Stats to understand the flow of goods and services between African countries of interest and their largest trade partners. 
+
+
+The Repo uses the **wbstats** package developed by World Bank developers to pull the latest data. 
+
+## Load Required Libraries
+```{r}
+library(wbstats)
+library(gt)
+library(leaflet) # For plotting maps
+library(tidyverse)
+library(gganimate)
+library(conflicted)
+library(directlabels)
+
+conflict_prefer("filter", "dplyr")
+conflict_prefer("select", "dplyr")
+
+```
+
+## Define Helper Functions
+```{r, echo = TRUE}
+#' Capitalize and make table titles bold
+#'
+#' @param indicator_id Indicator Id
+#' @param indicator Indicator Name
+#' @param source Database Source
+#'
+#' @return a formatted table with capitalized and bold titles.
+#' @export
+#'
+#' @examples 
+#' gt::gt() %>% prettify_table()
+prettify_table <- function(indicator_id = NULL, indicator = NULL, source = NULL){
+  
+  labelled_table <- gt::gt() %>% 
+    # Use clearer labels
+     cols_label(indicator_id = "Indicator ID",
+             indicator = "Indicator Name",
+             source = "Source") %>% 
+    # Make columns bold
+    tab_style(
+      locations = cells_column_labels(columns = everything()),
+      style = list(cell_text(weight = "bold")
+     )
+   )
+
+}
+
+
+#' Title
+#'
+#' @param base_size 
+#' @param base_family 
+#' @param ticks 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+theme_tufte_revised <- function(base_size = 11, base_family = "Gill Sans", ticks = TRUE) {
+  
+  ret <- ggplot2::theme_bw(base_family = base_family, base_size = base_size) +
+    ggplot2::theme(
+      axis.line = ggplot2::element_line(color = 'black'),
+      axis.title.x = ggplot2::element_text(vjust = -0.3),
+      axis.title.y = ggplot2::element_text(vjust = 0.8),
+      legend.background = ggplot2::element_blank(),
+      legend.key = ggplot2::element_blank(),
+      legend.title = ggplot2::element_text(face="plain"),
+      panel.background = ggplot2::element_blank(),
+      panel.border = ggplot2::element_blank(),
+      panel.grid = ggplot2::element_blank(),
+      plot.background = ggplot2::element_blank(),
+      strip.background = ggplot2::element_blank()
+    )
+  
+  if (!ticks) {
+    ret <- ret + ggplot2::theme(axis.ticks = ggplot2::element_blank())
+  }
+  
+  ret
+}
+
+```
+
+The World Bank tracks are over *200* Trade indicators with varying levels of missing data. In this repo, I only focus on indicators that are routinely used in macroeconomics publications. I will refer to both published economic literature and other trustworthy financial publications such as *Financial Times* and the *Wall Street Journal*.
+
+```{r, include=TRUE, echo=FALSE}
+trade_indicators <- wbstats::wb_indicators() %>%
+  filter(grepl("Trade", indicator)) %>% 
+  # The unit variable is empty(all NAs.). Exclude
+  select(-unit) %>% 
+  # Select aggregate metrics that are easity to understand. 
+  # For example a metric as a % of GDP 
+  filter(grepl("GDP", indicator, ignore.case = T))
+```
+
+
+```{r, include = FALSE, echo = TRUE, fig.cap = "Selected Indicators", fig.aligh = "center"}
+trades_indicator_table <-
+  trade_indicators %>% 
+  select(indicator_id, indicator, source) %>% 
+  gt::gt() #%>% 
+  #prettify_table() 
+
+# gt::gtsave(trades_indicator_table,
+#            file = file.path(here::here(), "LNSHUTI.github.io/plots/trade_indicators.png"))
+```
+
+## A simple glance at one metrics
+
+### Trade (% of GDP)
+
+```{r, echo = TRUE, include = FALSE}
+trade_pct_gdp <- 
+  trade_indicators %>% 
+  filter(indicator_id == "NE.TRD.GNFS.ZS") 
+```
+
+Pull data for trade as a % of GDP. The earliest available year is 1960. I suspect that most of the data before 2000 will be missing given that the Statistical Capacity of most countries was still very low and hence the data collection was not as reliable. 
+
+The **wbstats** package includes a package that map each country's "iso3c" code to country name and continent.We pull this crosswalk and use it to label indicator data. 
+```{r, echo = TRUE, include = TRUE}
+df_trade <- wb_data(indicator = trade_pct_gdp$indicator_id) %>% 
+  # Clean variable names
+  janitor::clean_names() %>% 
+  #Use Proper scale
+  mutate(ne_trd_gnfs_zs = ne_trd_gnfs_zs*100) %>%
+  select(iso3c, ne_trd_gnfs_zs, last_updated, date)
+
+# Pull country labels
+country_xwalk <- wb_countries() %>% 
+  select(iso3c, region, income_level) %>% 
+  unique()
+
+# Add continent labels, joining by each country's isoc
+df_tbl_labelled <- 
+  df_trade %>% 
+  left_join(country_xwalk, "iso3c") %>% 
+  mutate(year = lubridate::year(paste0(date,"-01-01"))) %>%
+  # Sum the metric by region-year
+  group_by(region, year, year_labeller) %>% 
+  summarize(median_trade_pct_gdp = median(ne_trd_gnfs_zs, na.rm = TRUE)/100) %>%
+  ungroup()
+ 
+# Plot the median of Trade as a % of GDP aggregated by region   
+set.seed(125)
+plt_trade_pct_gdp <- 
+  df_tbl_labelled %>%
+  ggplot(aes(x = year, y = median_trade_pct_gdp, color = region)) +
+  geom_smooth(aes(x = year_labeller, y = median_trade_pct_gdp, color = region)) +
+  geom_jitter(alpha = 0.01) +
+  xlim(1958, 2022) +
+  ylim(0, 100) +
+  ylab("Trade as a % of GDP") +
+  xlab("Year") +
+  labs(color='Region') +
+  #geom_vline(aes(xintercept = as.Date("2020-05-01")),lty=3) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggthemes::theme_tufte() 
+
+ggsave(plt_trade_pct_gdp, height = 4, width = 6,
+       file = "LNSHUTI.github.io/plots/plt_trade_pct_gdp.png"
+       )
+
+plt_trade_pct_gdp_gif <-
+  df_tbl_labelled %>%
+  ggplot(aes(x = year, y = median_trade_pct_gdp, color = new_region)) +
+  geom_point() +
+  geom_jitter() +
+  xlim(1958, 2022) +
+  ylim(0, 100) +
+  ylab("Trade as a % of GDP") +
+  xlab("Year") +
+  labs(color='Region') +
+
+  theme_tufte_revised() +
+  theme(legend.position="none", axis.text = element_text(size = 10)) +
+  ylab("TRADE as a % of GDP") +
+  #geom_vline(aes(xintercept = as.Date("2020-05-01")),lty=3) +
+  scale_colour_brewer(name = "",palette = "Dark2", guide = FALSE)
+  transition_time(year) 
+  
+animate(plot = plt_trade_pct_gdp_gif, height = 600, width = 400)
+anim_save("LNSHUTI.github.io/plots/trade_by_region_year.gif")
+```
+
+# Trade Flows
+
+The previous plot is interesting for two reasons. It shows what is widely known i.e that the global economy has been growing over the last few decades as shown by the overall growth in trade for all regions. The recession of 2008 and the contraction that followed the beginning of Covid-19 line up well with the plot. We can think of this step as a sanity check for ensuring that the data source is credible. 
+
+Now to the interesting part. Let us use the same APIs to pull trade flow metrics from the World Bank database. We will link to an interactive shiny app that interested users can play with to examine trade flows between Africa and the rest of the world. <Link to Shiny APP>
+
+Use the **wb_search()** function to search for all indicators that are related to trade. Display some of them and their corresponding descriptions. 
+
+Of the trade metrics found, exclude those without a valid description. In addition, exclude metrics that are not broad enough to capture trends of interest. For example, indicators that are too sector specific such as **IC.FRM.TRD.TR1**, which stands for **Days to clear direct exports through customs** was excluded. It is beyond the scope of this notebook to go into firm-level comparisons.  
+
+Finally, we limit ourselves to indicators that are measured in **US dollars.**  
+
+```{r, max.height='100px'}
+trade_metrics_tbl <- wb_search("TRD") %>% 
+  # Exclude measures without a valid description
+  filter(!is.na(indicator_desc)) %>% 
+  # Exclude metrics that are too specific
+  filter(!grepl(pattern = "FRM", x = indicator_id, ignore.case = T)) %>% 
+  # Only include indicators denominated in US dollars
+  filter(grepl(pattern = "dollar", x = indicator_id, ignore.case = T) | 
+         grepl(pattern = "dollar", x = indicator_desc, ignore.case = T)) %>% 
+  gt(data = .) %>% 
+  cols_merge(
+    columns = c(indicator_id, indicator),
+    pattern = "{1}:\t{2}"
+  ) %>% 
+  cols_label(indicator_id = "Indicator ID", indicator_desc = "Detailed Description") %>% 
+  # Given the large table size, only display some indicators and allow the user to scroll
+  tab_options(container.overflow.y = T)
+  
+  
+gtsave(data = trade_metrics_tbl,
+      file = file.path(here::here(), "LNSHUTI.github.io/plots/global_trade_indicators.png"))
+```
+
+In addition to the World Bank data, we rely on **International Trade Data** from the Harvard data-verse. This source is richer and has more information related to the flow of goods and services between countries.  
+
+
+
+**References:** 
+Jesse Piburn (2020). wbstats: Programmatic Access to the World Bank API. Oak Ridge
+  National Laboratory. Oak Ridge, Tennessee. URL
+  https://doi.org/10.11578/dc.20171025.1827
+  
+John Graves(2019). health-care-markets: Defining Markets for Health Care Services.
+  Vanderbilt University Medical Center. Nashville, TN. URL 
+  https://github.com/graveja0/health-care-markets
+  
+The Growth Lab at Harvard University. International Trade Data (SITC, Rev. 2).
+  2019-05-31. 2019. V5. Harvard Dataverse. URL. https://doi.org/10.7910/DVN/H8SFD2. 
+  doi/10.7910/DVN/H8SFD2
+
+Matt Grainger (2021). SDGsR: Interface with the UN SDGs API to get data about the 
+  Sustainable Development Goals. R package version
+  0.0.0.9000. https://drmattg.github.io/SDGsR/
+  
+  
+https://tdhock.github.io/directlabels/HOCKING-useR-2011-directlabels-poster.pdf

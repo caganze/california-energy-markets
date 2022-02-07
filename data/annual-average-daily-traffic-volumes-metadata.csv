@@ -1,0 +1,28 @@
+Field,Value
+Title,Annual Average Daily Traffic (AADT) Volumes
+URL,annual-average-daily-traffic-volumes
+Description,"<p>Traffic Volumes (a.k.a.Traffic Counts) are surveyed from the California State Highway System.   The data originated from Caltrans Traffic Census database compiled by Caltrans Districts Offices.  The Districts calculated the volumes hourly, daily, and monthly to derive an annual average daily traffic count. Volumes are surveyed in both directions, ""Back"" describes south or west of the location at which the count was recorded and ""Ahead"" describes north or east of the location at which the count was recorded. 
+ More info: https://dot.ca.gov/programs/traffic-operations/census </p>
+"
+Tags,"AADT,Annual Average Daily Traffic,Traffic Counts,Traffic Volumes"
+License,cc-zero
+Topic,transportation
+Organization,Caltrans
+Public Access Level,Public
+Rights,No Restrictions on Public Use
+Program Contact Name,"Division of Traffic Operations, Office of System Performance, Traffic Data Branch"
+Program Contact Email,cindy.pribyl@dot.ca.gov
+Author,Caltrans
+Homepage URL,http://www.dot.ca.gov/trafficops/census/
+Frequency,Annual
+Temporal Coverage,2007-01-01T12:00:00+00:00/2017-12-31T23:59:59+00:00
+Granularity,"Caltrans District, County, Route, Peak Hour, Peak Month, Daily Annual Average "
+Geographic Coverage Location,State
+Spatial,
+Data Standard,
+Language,
+Source Link,https://dot.ca.gov/programs/traffic-operations/census
+Additional Information,"Use Limitations: The data are made available to the public solely for informational purposes. Information provided in the Caltrans GIS Data site is accurate to the best of our knowledge and is subject to change on a regular basis, without notice. While Office of Data Services and Technology, GIS Branch makes every effort to provide useful and accurate information, we do not warrant the information to be authoritative, complete, factual, or timely. Information is provided on an ""as is"" and an ""as available"" basis. The Department of Transportation is not liable to any party for any cost or damages, including any direct, indirect, special, incidental, or consequential damages, arising out of or in connection with the access or use of, or the inability to access or use, the Site or any of the Materials or Services described herein."
+Related Resources,
+Secondary Sources,
+Citation,

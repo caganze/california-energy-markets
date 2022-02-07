@@ -1,0 +1,26 @@
+Field,Value
+Title,Ports
+URL,ports
+Description,"The PORT feature class is a point feature class representing information on various public and private ports in California as indicated in California's Major Commercial Ports -1986, by the California Department of Commerce, Office of Economic Research. The points were located and individually placed in accordance with various port maps submitted by different ports."
+Tags,"CAOpenData,California Department of Transportation,California State Transportation Agency,Caltrans,Coronavirus,Covid,Covid-19,Covid19"
+License,cc-by
+Topic,transportation
+Organization,Caltrans
+Public Access Level,Public
+Rights,No restrictions on public use
+Program Contact Name,Division of Transportation Planning
+Program Contact Email,caltrans.gislib@dot.ca.gov
+Author,Division of Transportation Planning
+Homepage URL,
+Frequency,Irregular
+Temporal Coverage,
+Granularity,
+Geographic Coverage Location,State
+Spatial,
+Data Standard,
+Language,en_US
+Source Link,https://gisdata.dot.ca.gov/arcgis/rest/services/Rail/Port/MapServer/0
+Additional Information,
+Related Resources,
+Secondary Sources,
+Citation,

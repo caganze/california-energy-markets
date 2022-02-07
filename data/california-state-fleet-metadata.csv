@@ -1,0 +1,27 @@
+Field,Value
+Title,California State Fleet
+URL,california-state-fleet
+Description,"<p>This dataset contains information on all non-confidential assets within the California State Vehicle Fleet. The purpose of this data is to provide vehicle information including sustainability measurements such as fuel types. The data is extracted from the Fleet Asset Management System utilized by the Department of General Services’ Office of Fleet and Asset Management. The dataset covers the timeframe from the calendar year 2015 until the calendar year 2018 and includes vehicle information reported by all agencies under the executive branch and constitutional offices</p>
+"
+Tags,"CA Fleet Data,California,FAMS,Fleet,Fleet Asset,Fleet Asset Management System,Government Vehicles,Mileage,Vehicle"
+License,notspecified
+Topic,
+Organization,California Department of General Services
+Public Access Level,Public
+Rights,No Restrictions on Public Use
+Program Contact Name,admin
+Program Contact Email,opencalifornia@govops.ca.gov
+Author,California Department of General Services
+Homepage URL,https://data.ca.gov/dataset/california-state-fleet
+Frequency,Annual
+Temporal Coverage,2011-01-02T01:00:00+00:00/2014-12-31T05:00:00+00:00
+Granularity,
+Geographic Coverage Location,
+Spatial,
+Data Standard,
+Language,
+Source Link,
+Additional Information,
+Related Resources,
+Secondary Sources,
+Citation,
